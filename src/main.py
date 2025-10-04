@@ -7,8 +7,8 @@ from discord.ext import commands
 from discord.ext.commands import Bot, CommandError
 from discord.utils import get
 
-from src.storage import VERIFIED_ROLE
-from src.utils import command_reply, log_inter
+from storage import VERIFIED_ROLE
+from utils import command_reply, log_inter
 
 ERROR_DELETE_TIME = 2.0  # Seconds
 
