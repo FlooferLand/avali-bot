@@ -7,6 +7,8 @@ from discord.ext import commands
 from discord.ext.commands import Bot, CommandError
 from discord.utils import get
 
+from src.storage import MEDIA_ROLE
+from src.utils import add_role_to_user, AddRoleError, AddRoleResult
 from storage import VERIFIED_ROLE
 from utils import command_reply, log_inter
 
@@ -23,26 +25,32 @@ bot = Bot(
 @bot.tree.command(name="verify", description="Adds the verified role to someone, or removes it if they already have it.")
 @commands.has_permissions(manage_roles=True)
 async def verify(interaction: discord.Interaction, member: discord.Member):
-    verified_role = member.guild.get_role(VERIFIED_ROLE)
-    if verified_role is None:
-        await command_reply(interaction, f"Unable to find verified role (`id={VERIFIED_ROLE}`)", delete_in=ERROR_DELETE_TIME)
-        return
-
     try:
-        if member.get_role(VERIFIED_ROLE) is None:
-            await member.add_roles(verified_role)
-            await command_reply(interaction, f"Verified `@{member.name}`!", ephemeral=False)
-            await log_inter(f"{interaction.user.name} verified `@{member.name}`!")
-        else:
-            await member.remove_roles(verified_role)
-            await command_reply(interaction, f"Unverified `@{member.name}`!", ephemeral=True)
-            await log_inter(f"{interaction.user.name} unverified `@{member.name}`!")
-    except CommandError as err:
-        await command_reply(
-            interaction,
-            "Failed to add role. Possible permission error? _(Make sure the bot is higher in the permissions list than the verified role)_",
-            delete_in=ERROR_DELETE_TIME
-        )
+        result = add_role_to_user(member, VERIFIED_ROLE)
+        match result:
+            case AddRoleResult.ROLE_ADDED:
+                await command_reply(interaction, f"Verified `@{member.name}`!", ephemeral=False)
+                await log_inter(f"{interaction.user.name} verified `@{member.name}`!")
+            case AddRoleResult.ROLE_REMOVED:
+                await command_reply(interaction, f"Unverified `@{member.name}`!", ephemeral=True)
+                await log_inter(f"{interaction.user.name} unverified `@{member.name}`!")
+    except AddRoleError as err:
+        await command_reply(interaction, str(err), delete_in=ERROR_DELETE_TIME)
+
+@bot.tree.command(name="media", description="Adds the media role to someone, or removes it if they already have it.")
+@commands.has_permissions(manage_roles=True)
+async def media(interaction: discord.Interaction, member: discord.Member):
+    try:
+        result = add_role_to_user(member, MEDIA_ROLE)
+        match result:
+            case AddRoleResult.ROLE_ADDED:
+                await command_reply(interaction, f"`@{member.name}` now has media permissions!", ephemeral=True)
+                await log_inter(f"{interaction.user.name} added 'media' to `@{member.name}`!")
+            case AddRoleResult.ROLE_REMOVED:
+                await command_reply(interaction, f"`@{member.name}` no longer has media permissions.", ephemeral=True)
+                await log_inter(f"{interaction.user.name} removed 'media' from `@{member.name}`!")
+    except AddRoleError as err:
+        await command_reply(interaction, str(err), delete_in=ERROR_DELETE_TIME)
 
 # Events
 @bot.event
