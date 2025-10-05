@@ -53,4 +53,8 @@ async def on_ready():
     await bot.tree.sync()
 
 # Running the bot
-bot.run(os.getenv("DISCORD_TOKEN"), log_level=0)
+TOKEN: str | None = os.getenv("DISCORD_TOKEN")
+if TOKEN is not None:
+    bot.run(TOKEN, log_level=0)
+else:
+    print("DISCORD_TOKEN was not set")
