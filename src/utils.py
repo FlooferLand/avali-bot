@@ -2,7 +2,6 @@ import discord
 from discord import Interaction, InteractionCallbackResponse
 from discord.ext.commands import CommandError
 
-
 async def command_reply(interaction: Interaction, content: str, ephemeral: bool = True, delete_in: float | None = None) -> InteractionCallbackResponse:
     response: InteractionCallbackResponse = await interaction.response.send_message(content, ephemeral=ephemeral)
     if delete_in is not None:

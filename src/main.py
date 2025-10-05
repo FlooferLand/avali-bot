@@ -1,14 +1,12 @@
 import os
-from asyncio import sleep
 
 import discord
 from discord import Intents, ActivityType
 from discord.ext import commands
-from discord.ext.commands import Bot, CommandError
-from discord.utils import get
+from discord.ext.commands import Bot
 
-from src.storage import MEDIA_ROLE
-from src.utils import add_role_to_user, AddRoleError, AddRoleResult
+from storage import MEDIA_ROLE
+from utils import add_role_to_user, AddRoleError, AddRoleResult
 from storage import VERIFIED_ROLE
 from utils import command_reply, log_inter
 
