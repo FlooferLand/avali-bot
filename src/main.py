@@ -13,6 +13,8 @@ from utils import command_reply, log_inter
 ERROR_DELETE_TIME = 2.0  # Seconds
 
 intents = Intents.default()
+intents.members = True
+intents.message_content = True
 bot = Bot(
     intents=intents,
     activity=discord.Activity(type=ActivityType.watching, name="twitch.tv/StorytellerWMD"),
@@ -49,6 +51,23 @@ async def media(interaction: discord.Interaction, member: discord.Member):
                 await log_inter(f"{interaction.user.name} removed 'media' from `@{member.name}`!")
     except AddRoleError as err:
         await command_reply(interaction, str(err), delete_in=ERROR_DELETE_TIME)
+
+@bot.tree.command(name="view_unverified", description="See all the unverified users.")
+@commands.has_permissions(manage_roles=True)
+async def view_unverified(interaction: discord.Interaction):
+    unverified: list[str] = []
+    async for member in interaction.guild.fetch_members():
+        if member.get_role(VERIFIED_ROLE) is None \
+                and not member.bot \
+                and not member.guild_permissions.manage_roles:
+            unverified.append(f"- '{member.display_name}' `(@{member.name})`")
+
+    if len(unverified) > 0:
+        out: str = f"### Unverified:\n{"\n".join(unverified)}"
+        await command_reply(interaction, out)
+    else:
+        out: str = f"All users have already been verified!"
+        await command_reply(interaction, out)
 
 # Events
 @bot.event
