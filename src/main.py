@@ -24,7 +24,7 @@ bot = Bot(
 @commands.has_permissions(manage_roles=True)
 async def verify(interaction: discord.Interaction, member: discord.Member):
     try:
-        result = add_role_to_user(member, VERIFIED_ROLE)
+        result = await add_role_to_user(member, VERIFIED_ROLE)
         match result:
             case AddRoleResult.ROLE_ADDED:
                 await command_reply(interaction, f"Verified `@{member.name}`!", ephemeral=False)
@@ -39,7 +39,7 @@ async def verify(interaction: discord.Interaction, member: discord.Member):
 @commands.has_permissions(manage_roles=True)
 async def media(interaction: discord.Interaction, member: discord.Member):
     try:
-        result = add_role_to_user(member, MEDIA_ROLE)
+        result = await add_role_to_user(member, MEDIA_ROLE)
         match result:
             case AddRoleResult.ROLE_ADDED:
                 await command_reply(interaction, f"`@{member.name}` now has media permissions!", ephemeral=True)
