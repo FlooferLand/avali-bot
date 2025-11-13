@@ -24,16 +24,18 @@ bot = Bot(
 # Commands
 @bot.tree.command(name="verify", description="Adds the verified role to someone, or removes it if they already have it.")
 @commands.has_permissions(manage_roles=True)
-async def verify(interaction: discord.Interaction, member: discord.Member):
+async def verify(interaction: discord.Interaction, member: discord.Member, reason: str | None):
     try:
         result = await add_role_to_user(member, VERIFIED_ROLE)
+        reason_insert: str = ""
+        if reason is not None: reason_insert = f" for reason ||{reason.replace("||", "\\|\\|")}||"
         match result:
             case AddRoleResult.ROLE_ADDED:
-                await command_reply(interaction, f"Verified `@{member.name}`!", ephemeral=False)
-                await log_inter(f"{interaction.user.name} verified `@{member.name}`!")
+                await command_reply(interaction, f"Verified `@{member.name}`{reason_insert}!", ephemeral=False)
+                await log_inter(f"{interaction.user.name} verified `@{member.name}`{reason_insert}!")
             case AddRoleResult.ROLE_REMOVED:
-                await command_reply(interaction, f"Unverified `@{member.name}`!", ephemeral=True)
-                await log_inter(f"{interaction.user.name} unverified `@{member.name}`!")
+                await command_reply(interaction, f"Unverified `@{member.name}`{reason_insert}!", ephemeral=True)
+                await log_inter(f"{interaction.user.name} unverified `@{member.name}`{reason_insert}!")
     except AddRoleError as err:
         await command_reply(interaction, str(err), delete_in=ERROR_DELETE_TIME)
 
